@@ -70,6 +70,7 @@ curl https://api.allawee.com/customers
 ```
 
 | Request Body parameter | Required? | Description |
+| :---- | :---- | :---- |
 | name | Yes | The customer’s legal name. If it is a business, it should be the business’s registration name. |
 | reference | Yes | A unique reference for the customer. It could be the ID you use to identify the customer within your system or an email. |
 | type | Yes | This value should be either `individual` or `business` and identifies whether the customer is a natural person or a business entity. |
