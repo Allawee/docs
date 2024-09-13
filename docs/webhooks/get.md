@@ -8,7 +8,7 @@ You can get all of your webhooks, get a single webhook, or get a webhook’s sec
 
 You should call the get all webhooks endpoint to get all of your webhooks.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/webhooks
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -17,7 +17,7 @@ curl https://api.allawee.com/webhooks
 
 You call the get a single webhook endpoint to get a single webhook with its ID.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/webhooks/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -26,7 +26,7 @@ curl https://api.allawee.com/webhooks/:id
 
 You can get a webhook’s signing secret through a call.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/webhooks/:id/secret
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

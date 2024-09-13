@@ -6,7 +6,7 @@ sidebar_position: 2
 
 You can create a dispute on a transaction through the Create Dispute endpoint:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/disputes
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

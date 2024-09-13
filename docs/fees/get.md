@@ -8,7 +8,7 @@ You can fetch fees you have created either by getting all fees or by getting a s
 
 Get all fees:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/fees
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -17,7 +17,7 @@ curl https://api.allawee.com/fees
 
 Get a single fee by its ID:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/fees/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

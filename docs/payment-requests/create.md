@@ -1,12 +1,12 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Create a payment request
 
 You can create a payment request through a call to the Create Payment Request endpoint:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/payment-requests
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

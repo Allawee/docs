@@ -6,7 +6,7 @@ sidebar_position: 3
 
 You can update customer information even after creating the customer. The request body is similar to the request body for creating a new customer. However, it should be a `PUT` request to `https://api.allawee.com/customers/:id` like so:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/customers/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -67,4 +67,54 @@ curl https://api.allawee.com/customers/:id
   "metadata": {}
 }'
 -X PUT
+```
+
+```js title="Sample Success Response"
+{
+    "code": "success",
+    "data": {
+        "name": "Ciroma C Adekunle",
+        "type": "individual",
+        "status": "active",
+        "claims": {
+            "individualInformation": {
+                "firstName": "Ciroma",
+                "lastName": "Adekunle",
+                "middleName": "Chukwuma",
+                "email": "ciroma@gmail.com",
+                "phoneNumber": "+2349154109234",
+                "title": "Mr",
+                "gender": "M",
+                "dateOfBirth": "1997-2-13",
+                "nationalityCode": "NG"
+            },
+            "individualAddress": {
+                "city": "Yaba",
+                "state": "NG-LA",
+                "countryCode": "NG",
+                "addressLineOne": "100 herbert macaulay road",
+                "addressLineTwo": "",
+                "postalCode": "11041"
+            },
+            "individualIdentity": {
+                "type": "bvn",
+                "id": "22489035167",
+                "issuingCountry": "NG"
+            }
+        },
+        "verifications": [
+            {
+                "type": "tier-3",
+                "status": "verified"
+            }
+        ],
+        "metadata": {
+            "userId": 2345
+        },
+        "createdAt": "2023-03-14T23:21:12.882Z",
+        "updatedAt": "2023-03-16T02:03:49.738Z",
+        "id": "cus.2tXNjMhytgx7hCxu9",
+        "object": "customer"
+    }
+}
 ```

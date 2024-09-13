@@ -8,7 +8,7 @@ You can use the merchant tools to get all merchants, get available merchant cate
 
 You can get all merchants by calling an endpoint like so:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/merchants
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -17,7 +17,7 @@ curl https://api.allawee.com/tools/merchants
 
 You can get merchant categories:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/merchants/categories
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -26,7 +26,7 @@ curl https://api.allawee.com/tools/merchants/categories
 
 You can get one merchant:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/merchants/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

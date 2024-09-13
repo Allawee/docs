@@ -6,7 +6,7 @@ sidebar_position: 1
 
 The webhook you set while creating your account is the default webhook for all webhook events. However, you can create a webhook for specific events.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/webhooks
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

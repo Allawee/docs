@@ -6,7 +6,7 @@ sidebar_position: 2
 
 You should call the Create fees endpoint to create a fee:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/fees
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

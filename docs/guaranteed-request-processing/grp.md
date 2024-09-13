@@ -8,7 +8,7 @@ Guaranteed request processing is a delayed processing system in the Allawee API.
 
 When the request is processed, you get a webhook notification with an event type of `request-completed`. You can also check the status of your request using the ID:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/requests/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

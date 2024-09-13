@@ -8,7 +8,7 @@ You can use the configuration tools endpoints to set payment configurations that
 
 To get your configuration:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/configuration
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -17,7 +17,7 @@ curl https://api.allawee.com/tools/configuration
 
 To update your configuration:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/configuration/payment
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

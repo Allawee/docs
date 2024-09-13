@@ -6,7 +6,7 @@ sidebar_position: 3
 
 You can update the optional fields of a dispute after creating it. The optional fields include the text, document, and user.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/disputes/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -22,7 +22,7 @@ curl https://api.allawee.com/disputes/:id
 
 You can also close a dispute:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/disputes/:id/close
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

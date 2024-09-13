@@ -19,6 +19,8 @@ You can sign up for an Allawee business account at: [https://infra.allawee.com/s
 
 You can reach Allawee Support through email: [support@allawee.com](mailto:support@allawee.com).
 
+You can also access the [Allawee Public Postman collection](https://www.postman.com/allaweeinc/allawee-infra/collection/gc64xzz/allawee-v2023-02-01?action=share&creator=2932477).
+
 ## Authentication and Authorization
 
 Allawee maintains granular permissions, allowing you to determine what each Access Key you generate can do.

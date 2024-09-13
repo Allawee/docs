@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Cards you subsequently create will be within a card program. You need to create a card program before you can create physical cards, as you have to assign the physical card to a program at the point of creation.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/card-programs
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -64,3 +64,42 @@ curl https://api.allawee.com/card-programs
 | personalization | No | This should be present for physical cards. It determines the artwork on the card and whether the card holder’s name should be on the card. |
 | authorization | No | This should be present for physical cards. The authorization parameter determines important information such as the card’s funding source, which may be `card-account` or `settlement-account`. It also determines the authorization timeout default action which may be `approve` or `decline`. |
 
+```js title="Sample Success Response"
+{
+    "code": "success",
+    "data": {
+        "name": "Card program",
+        "network": "verve",
+        "quantity": 1,
+        "currency": "NGN",
+        "personalization": {
+            "frontArtworkFile": "https://figma.com",
+            "printCardholderName": false,
+            "defaultCardholderName": "Ciroma"
+        },
+        "distribution": {
+            "type": "bulked",
+            "shippingAddress": {
+                "city": "yaba",
+                "state": "NG-LA",
+                "countryCode": "NG",
+                "phoneNumber": "+2349134902345",
+                "addressLineOne": "100 Herbert macaulay way",
+                "addressLineTwo": ""
+            }
+        },
+        "authorization": {
+            "fundingSourceType": "settlement-account",
+            "webhook": "wh.2tXPfsNc6CoZjbRWi",
+            "settlementAccount": "acct.2tVZczWw7m6Teoeb7",
+            "feesAccount": "acct.2tVZczWw7m6Teoeb7",
+            "timeoutDefault": "decline"
+        },
+        "status": "new",
+        "createdAt": "2023-03-17T00:39:22.589Z",
+        "updatedAt": "2023-03-17T00:39:22.589Z",
+        "id": "c.prg.2tY3gamDwgZfxnKHS",
+        "object": "card.program"
+    }
+}
+```

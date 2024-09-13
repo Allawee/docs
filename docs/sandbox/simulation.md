@@ -10,7 +10,7 @@ You can simulate actions in test mode that usually aren’t within your control 
 
 You can simulate a card program going live.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/simulation/card-programs/:id/go-live
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -24,7 +24,7 @@ You can simulate several steps in a card authorization flow.
 
 You can simulate sending the card authorization request check.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/simulation/cards/:id/request-authorization/check
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -44,7 +44,7 @@ curl https://api.allawee.com/simulation/cards/:id/request-authorization/check
 
 You can simulate sending the card authorization request capture.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/simulation/cards/:id/request-authorization/capture
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -68,7 +68,7 @@ curl https://api.allawee.com/simulation/cards/:id/request-authorization/capture
 
 You can simulate updating the card authorization request capture.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/simulation/cards/:id/request-authorization/update-capture
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -96,7 +96,7 @@ curl https://api.allawee.com/simulation/cards/:id/request-authorization/update-c
 
 You can simulate sending a card authorization request reverse capture.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/simulation/cards/:id/request-authorization/reverse-capture
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -114,7 +114,7 @@ curl https://api.allawee.com/simulation/cards/:id/request-authorization/reverse-
 
 You can simulate receiving a bank transfer payment.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/simulation/payments/pay-in
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

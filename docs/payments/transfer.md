@@ -6,7 +6,7 @@ sidebar_position: 2
 
 We provide a transfer API that you can use to make payouts to Nigerian bank accounts. You can make payments with a single call to the payout endpoint.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/payments/payouts
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

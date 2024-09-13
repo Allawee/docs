@@ -8,7 +8,7 @@ You can add deposit channels for accounts you create and update the account name
 
 You can add a deposit channel for an account like so:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/accounts/:id/deposit-channels
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -20,7 +20,7 @@ curl https://api.allawee.com/accounts/:id/deposit-channels
 
 You can also update the deposit channel account name like so:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/accounts/:id/deposit-channels/update-account-name
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -30,3 +30,5 @@ curl https://api.allawee.com/accounts/:id/deposit-channels/update-account-name
 }'
 -X PUT
 ```
+
+The new account name is gotten from the customer associated with the account. The customer's full name is used as the account name.

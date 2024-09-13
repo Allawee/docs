@@ -6,7 +6,7 @@ sidebar_position: 2
 
 You can update a webhook after creating it.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/webhooks/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

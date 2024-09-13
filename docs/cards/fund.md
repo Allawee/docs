@@ -30,7 +30,7 @@ You should ensure you have enough money in your debit source while funding a car
 
 You can confirm a funding source using the source’s ID.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/cards/:id/funding-source
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -39,7 +39,7 @@ curl https://api.allawee.com/cards/:id/funding-source
 
 You can also check a funding source’s balance:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/cards/:id/funding-source/balance
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

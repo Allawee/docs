@@ -6,7 +6,7 @@ sidebar_position: 4
 
 You can update card programs you have already created. The request body is similar to the request body for creating a new card program. However, it should be a `PUT` request to https://api.allawee.com/card-programs/:id like so:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/card-programs/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

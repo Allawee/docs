@@ -8,7 +8,7 @@ You can use the FX tools to work with foreign exchange.
 
 You can get rates:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/fx/rates
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -17,7 +17,7 @@ curl https://api.allawee.com/tools/fx/rates
 
 You can get the current USD rate:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/fx/rates?from=USD&to=NGN
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -26,7 +26,7 @@ curl https://api.allawee.com/tools/fx/rates?from=USD&to=NGN
 
 You can set your fx quote when converting between currencies:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/tools/fx/quotes
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

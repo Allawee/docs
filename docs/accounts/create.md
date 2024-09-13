@@ -8,7 +8,7 @@ You can use the create account endpoint to create an account for a business or i
 
 Your request to create an account should look like so:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/accounts
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -37,3 +37,28 @@ curl https://api.allawee.com/accounts
 | type | Yes | The account type should be `main`, `sub`, or `virtual`. |
 | depositChannels | No | The channel for deposits. This currently only supports `bank-account` deposits. |
 | metadata | No | Any metadata you wish to associate with the card. |
+
+```js title="Sample Success Response"
+{
+    "code": "success",
+    "data": {
+        "name": "funding account",
+        "type": "main",
+        "status": "active",
+        "currency": "NGN",
+        "depositChannels": [
+            {
+                "accountName": "funding account",
+                "accountNumber": "0088664826",
+                "bankName": "Allawee Sandbox Bank",
+                "bankCode": "000",
+                "partner": "allawee-sandbox"
+            }
+        ],
+        "createdAt": "2023-03-15T00:23:10.926Z",
+        "updatedAt": "2023-03-15T00:23:10.926Z",
+        "id": "ac.2tXPYgzWRmKh3H9D4",
+        "object": "account"
+    }
+}
+```

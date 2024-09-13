@@ -8,7 +8,7 @@ When a card becomes active, you should enrol the card for authorization through 
 
 You can enrol a card for authentication through safe tokens with the customer’s email and phone number.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/cards/:id/enroll/safetoken
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -21,7 +21,7 @@ curl https://api.allawee.com/cards/:id/enroll/safetoken
 
 You also use the customer’s email and phone number for 3DS enrollment.
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/cards/:id/enroll/3ds
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"

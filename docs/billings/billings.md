@@ -8,7 +8,7 @@ You can get all of your billings or get a single billing by its ID. These are yo
 
 To get all of your billings:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/billings
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
@@ -17,7 +17,7 @@ curl https://api.allawee.com/billings
 
 To get a single billing by its ID:
 
-```
+```js title="Sample Request"
 curl https://api.allawee.com/billings/:id
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
