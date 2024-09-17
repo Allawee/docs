@@ -3,7 +3,7 @@ sidebar_position: 1
 slug: /
 ---
 
-# Allawee Documentation
+# Introduction
 
 Learn to use the Allawee API to issue cards, assign bank accounts to your customers, make transfers, and pay bills.
 
@@ -62,3 +62,18 @@ You can sort the response data with the `sort` query parameter. This allows you 
 ### Select
 
 You can use the `select` query parameter to get only some key values in your response. This can reduce the size of the JSON you get as a response. You can do this by including the keys you wish to get back in an array as the value of the `select` query parameter.
+
+## Guaranteed Request Processing (GRP)
+
+Guaranteed request processing is a delayed processing system in the Allawee API.When a request cannot be processed immediately, there is a status code of 202 and a response code of `request-accepted`. You can also access the request ID in the response header you get, with a `x-request-id` key.
+
+When the request is processed, you get a webhook notification with an event type of `request-completed`. You can also check the status of your request using the ID:
+
+```js title="Sample Request"
+curl https://api.allawee.com/requests/:id
+-H "Authorization: Bearer YOUR_SECRET_KEY"
+-H "Content-Type: application/json"
+-X GET
+```
+
+The GRP feature is controlled by the API key you use to authorise your request. When you create an authorisation token, the GRP option is off by default, but you can toggle it on. If you leave it off, your requests will fail fast when they cannot be processed.
