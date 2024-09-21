@@ -4,22 +4,23 @@ sidebar_position: 1
 
 # Create a card
 
-You can issue a card through the Allawee API with the create card endpoint. When you create a card, you can set controls on the cards. The categories determine when the card can be charged, through merchant categories, merchant MCCs, payment channels, and spending limits. 
+You can issue a card through the Allawee API with the create card endpoint. When you create a card, you can set controls on the cards. The categories determine when the card can be charged, through merchant categories, merchant MCCs, payment channels, and spending limits.
+
+## Create a physical card
 
 ```js title="Sample Request"
 curl https:api.allawee.comcards
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: applicationjson"
 -d '{
-  "program": "string",
+  "program": "c.prg.2w2wBSRRjG6y1Ufuj",
   "amount": 500,
-  "fxHash": "string",
   "reference": "string",
   "cardHolderName": "string",
-  "customer": "string",
+  "customer": "cus.2v4ryuthd4SWer",
   "debitSource": {},
   "fundingSource": {},
-  "debitCurrency": "string",
+  "debitCurrency": "NGN",
   "controls": {
     "allowedMcc": [
       "5541-5542,7654"
@@ -91,4 +92,105 @@ curl https:api.allawee.comcards
     "object": "card"
   }
 }
+```
+
+## Create a virtual card
+
+You can create a naira virtual card like so:
+
+```js title="Sample Request"
+curl https:api.allawee.comcards
+-H "Authorization: Bearer YOUR_SECRET_KEY"
+-H "Content-Type: applicationjson"
+-d '{
+  "program": "c.prg.2w2wBSRRjG6y1Ufuj",
+  "cardHolderName": "John Doe",
+  "customer": "cus.2v4ryuthd4SWer",
+  "debitSource": {},
+  "fundingSource": {},
+  "debitCurrency": "NGN",
+  "controls": {
+    "allowedMcc": [
+      "5541-5542,7654"
+    ],
+    "blockedMcc": [
+      "7399",
+      "7395"
+    ],
+    "allowedCategories": [
+      "airlines"
+    ],
+    "blockedCategories": [
+      "airlines"
+    ],
+    "allowedChannels": [
+      "pos"
+    ],
+    "blockedChannels": [
+      "online"
+    ],
+    "allowedMerchants": [
+      "mch.2cbc123456"
+    ],
+    "blockedMerchants": [
+      "mch.2cbc123456"
+    ],
+    "spendingLimits": [
+      null
+    ]
+  },
+  "metadata": {}
+}'
+-X POST
+```
+
+You can create a virtual dollar card like so:
+
+```js title="Sample Request"
+curl https:api.allawee.comcards
+-H "Authorization: Bearer YOUR_SECRET_KEY"
+-H "Content-Type: applicationjson"
+-d '{
+  "program": "c.prg.2w2wBSRRjG6y1Ufuj",
+  "cardHolderName": "John Doe",
+  "customer": "cus.2v4ryuthd4SWer",
+  "fxHash": "a6454tgrfdcvhhyue64645ref45363jh",
+  "debitCurrency": "NGN",
+  "amount": 1000,
+  "debitSource": {},
+  "fundingSource": {},
+  "debitCurrency": "NGN",
+  "controls": {
+    "allowedMcc": [
+      "5541-5542,7654"
+    ],
+    "blockedMcc": [
+      "7399",
+      "7395"
+    ],
+    "allowedCategories": [
+      "airlines"
+    ],
+    "blockedCategories": [
+      "airlines"
+    ],
+    "allowedChannels": [
+      "pos"
+    ],
+    "blockedChannels": [
+      "online"
+    ],
+    "allowedMerchants": [
+      "mch.2cbc123456"
+    ],
+    "blockedMerchants": [
+      "mch.2cbc123456"
+    ],
+    "spendingLimits": [
+      null
+    ]
+  },
+  "metadata": {}
+}'
+-X POST
 ```

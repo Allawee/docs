@@ -39,27 +39,6 @@ curl https://api.allawee.com/customers
       "url": "https://example.com/document.png",
       "issuingCountry": "NG"
     },
-    "businessInformation": {
-      "registrationName": "Good Mill Ltd",
-      "phoneNumber": "+2348123456789",
-      "email": "goodmill@gmail.com"
-    },
-    "businessIdentity": {
-      "type": "cac",
-      "id": "A015BVP13Z",
-      "url": "https://example.com/document.png",
-      "issuingCountry": "NG"
-    },
-    "businessDirectors": [
-      "string"
-    ],
-    "businessAddress": {
-      "city": "Yaba",
-      "state": "Lagos",
-      "countryCode": "NG",
-      "addressLineOne": "No 10, Adekunle Close",
-      "addressLineTwo": "Off Ciroma Rd"
-    }
   },
   "verifications": [
     "string"

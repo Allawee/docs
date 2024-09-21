@@ -4,10 +4,10 @@ sidebar_position: 2
 
 # Activate a card
 
-Once a card has been created, and delivered if it is a physical card, you can activate it with the CVV and a PIN of the cardholder’s choice. The CVV will be on the back of a physical card. You can also check it by fetching the card secrets.
+Once a card has been created, and delivered if it is a physical card, you can activate it with the CVV and a PIN of the cardholder’s choice. The CVV will be on the back of a physical card. You can also check it by fetching the card secrets. This call should be to Allawee's secure endpoint.
 
 ```js title="Sample Request"
-curl https://api.allawee.com/cards/:id/activate
+curl https://secure.allawee.com/cards/:id/activate
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
 -d '{
@@ -17,10 +17,10 @@ curl https://api.allawee.com/cards/:id/activate
 -X POST
 ```
 
-After activating the card, you can reset the PIN at any time by passing the new PIN to the reset card PIN endpoint like so:
+After activating the card, you can reset the PIN at any time by passing the new PIN to the reset card PIN secure endpoint like so:
 
 ```js title="Sample Request"
-curl https://api.allawee.com/cards/:id/reset-pin
+curl https://secure.allawee.com/cards/:id/reset-pin
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
 -d '{

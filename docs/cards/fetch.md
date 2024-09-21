@@ -185,10 +185,10 @@ curl https://api.allawee.com/cards/:id
 }
 ```
 
-You can also get a card’s secrets:
+You can also get a card’s secrets through a call to the Allawee secure endpoint:
 
 ```js title="Sample Request"
-curl https://api.allawee.com/cards/:id/secrets
+curl https://secure.allawee.com/cards/:id/secrets
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
 -X GET
