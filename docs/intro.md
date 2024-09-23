@@ -11,6 +11,10 @@ Learn to use the Allawee API to issue cards, assign bank accounts to your custom
 
 Welcome to the Allawee API documentation, where you’ll learn to issue payment cards and bank accounts through APIs and your Allawee dashboard.
 
+## Base URL
+
+The base url for requests to allawee is api.allawee.com. However, where the action being performed is a secure action, the base url for such requests will be secure.allawee.com. Data from secure requests are handled differently to protect sensitive information.
+
 ### Setting up an account
 
 You can sign up for an Allawee business account at: [https://infra.allawee.com/signup](https://infra.allawee.com/signup). This account is necessary to obtain API keys and begin issuing cards. We will also need your business information, such as registration documents, as part of the compliance process. However, even before your business KYC documents are approved, you can test the Issuing API.
