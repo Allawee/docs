@@ -1,8 +1,8 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
-# Card Authorizations
+# Get Card Authorizations
 
 You can fetch a list of all card authorizations through the card authorizations endpoint.
 

@@ -4,7 +4,11 @@ sidebar_position: 1
 
 # Create a customer
 
-Customers are how the API links resources, such as cards or bank accounts, to the holder. You need to create customers before you can issue cards or assign bank accounts. You can create a customer like so:
+Customers are how the API links resources, such as cards or bank accounts, to the holder. You need to create customers before you can issue cards or assign bank accounts. You can create either individuals or businesses as customers.
+
+## Individuals
+
+You can create an individual as a customer like so:
 
 ```js title="Sample Request"
 curl https://api.allawee.com/customers
@@ -105,4 +109,47 @@ curl https://api.allawee.com/customers
         "object": "customer"
     }
 }
+```
+
+## Corporate customers
+
+You can create a corporate customer like so:
+
+```js title="Sample Request"
+curl https://api.allawee.com/customers
+-H "Authorization: Bearer YOUR_SECRET_KEY"
+-H "Content-Type: application/json"
+-d '{
+  "name": "string",
+  "reference": "customer@example.com",
+  "type": "individual",
+  "claims": {
+    "businessInformation": {
+      "registrationName": "Good Mill Ltd",
+      "phoneNumber": "+2348123456789",
+      "email": "goodmill@gmail.com"
+    },
+    "businessIdentity": {
+      "type": "cac",
+      "id": "A015BVP13Z",
+      "url": "https://example.com/document.png",
+      "issuingCountry": "NG"
+    },
+    "businessDirectors": [
+      "string"
+    ],
+    "businessAddress": {
+      "city": "Yaba",
+      "state": "Lagos",
+      "countryCode": "NG",
+      "addressLineOne": "No 10, Adekunle Close",
+      "addressLineTwo": "Off Ciroma Rd"
+    }
+  },
+  "verifications": [
+    "string"
+  ],
+  "metadata": {}
+}'
+-X POST
 ```
