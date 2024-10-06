@@ -145,3 +145,744 @@ Authorization response should be sent as JSON responses with the following param
   }
 }
 ```
+
+- Here is an example for `Authorization` Implementation.
+
+```go title="Example Authorization Implementation in Go"
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/sha512"
+	"encoding/hex"
+	"encoding/json"
+	"github.com/kataras/iris/v12"
+)
+
+var AllaweeWebhookSigningKey = "XXXXXXXXXXX"
+
+type AllaweeEventBody struct {
+	Event    string                   `json:"event"`
+	Data     AllaweeAuthorizationData `json:"data"`
+	Metadata AllaweeEventBodyMetadata `json:"metadata"`
+}
+
+type AllaweeAuthorizationData struct {
+	Card          string                          `json:"card"`
+	Type          string                          `json:"type"`
+	Id            string                          `json:"id"`
+	Amount        int64                           `json:"amount"`
+	Fees          int64                           `json:"fees"`
+	Channel       string                          `json:"channel"`
+	Reserved      bool                            `json:"reserved"`
+	NetworkData   AllaweeEventBodyDataNetworkData `json:"networkData"`
+	CreatedAt     time.Time                       `json:"createdAt"`
+	Status        string                          `json:"status"`
+	DeclineReason string                          `json:"declineReason"`
+	DecisionType  string                          `json:"decisionType"`
+	Currency      string                          `json:"currency"`
+}
+
+type AllaweeEventBodyDataNetworkData struct {
+	Rrn                      string `json:"rrn"`
+	Stan                     string `json:"stan"`
+	Network                  string `json:"network"`
+	TxnReference             string `json:"txnReference"`
+	CardAcceptorNameLocation string `json:"cardAcceptorNameLocation"`
+}
+
+type AllaweeEventBodyMetadata struct {
+	CreatedAt time.Time `json:"createdAt"`
+	Event     string    `json:"event"`
+}
+
+// Verify the request by comparing HMAC Hex of the webhook signing key
+func verifyRequest(c iris.Context) *AllaweeEventBody {
+	signature := c.Request().Header.Get("Allawee-Signature")
+	reqBody, _ := c.GetBody()
+
+	hash := hmacHashHex(AllaweeWebhookSigningKey, string(reqBody))
+
+	if hash != signature {
+		c.StopWithJSON(iris.StatusBadRequest, iris.Map{"error": "Invalid Signature"})
+		return nil
+	}
+
+	// Get TransferEventBody
+	var body AllaweeEventBody
+	err := json.Unmarshal(reqBody, &body)
+	if err != nil {
+		c.StopWithJSON(iris.StatusBadRequest, iris.Map{"error": "Invalid Request"})
+		return nil
+	}
+
+	return &body
+}
+
+
+func hmacHashHex(key string, secret string) string {
+	h := hmac.New(sha512.New, []byte(key))
+	h.Write([]byte(secret))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func main(c iris.Context) {
+	body := verifyRequest(c)
+	if body == nil {
+		return
+	}
+
+	if body.Event == "card.authorization.request" {
+		response := processRequest(body)
+		c.JSON(response)
+		return
+	}
+
+	if body.Event == "card.authorization.closed" {
+		response := processClosed(body)
+		c.JSON(response)
+		return
+	}
+
+	if body.Event == "card.authorization.update" {
+		response := processUpdate(body)
+		c.JSON(response)
+		return
+	}
+
+	if body.Event == "card.transaction.created" {
+		response := iris.Map{"code": "success"}
+		c.JSON(response)
+		return
+	}
+
+	c.StopWithJSON(iris.StatusBadRequest, iris.Map{"error": "Invalid Request"})
+	return
+}
+
+func processRequest(body *AllaweeEventBody) iris.Map {
+	if body.Data.Type == "check" {
+		return processCheck(body)
+	}
+
+	if body.Data.Type == "capture" {
+		return processCapture(body)
+	}
+
+	return iris.Map{"action": "decline", "metadata": iris.Map{"reason": "Invalid Request"}}
+}
+
+func processCheck(body *AllaweeEventBody) iris.Map {
+	// Get the card's wallet
+	wallet := getCardWallet(body.Data.Card)
+	if wallet == nil {
+		return iris.Map{"action": "decline", "code": "account-not-found"}
+	}
+
+	if !wallet.Active {
+		return iris.Map{"action": "decline", "code": "account-inactive"}
+	}
+
+	return iris.Map{
+		"action":         "approve",
+		"cardBalance":    wallet.AvailableBalance,
+		"cardHolderName": wallet.Name,
+	}
+}
+
+func processCapture(body *AllaweeEventBody) iris.Map {
+	// Get the card's wallet
+	wallet := getCardWallet(body.Data.Card)
+
+	// if the wallet is not active, decline
+	if wallet == nil {
+		return iris.Map{"action": "decline", "code": "account-not-found"}
+	}
+
+	// if the wallet is not active, decline
+	if !wallet.Active {
+		return iris.Map{"action": "decline", "code": "account-inactive"}
+	}
+
+	// Check if transaction already exists, using authorization id as reference
+	transaction := getTransaction(body.Data.Id)
+	if transaction != nil {
+		return iris.Map{"action": "decline", "code": "duplicate-transaction"}
+	}
+
+	// Get transaction fees, in-case you are adding a fee (optional)
+	transactionFee, err := calculateTransactionFee(body.Data.Amount)
+	if err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	if wallet.AvailableBalance < (body.Data.AmountAndFees() + *transactionFee) {
+		return iris.Map{"action": "decline", "code": "insufficient-funds"}
+	}
+
+	// Add a step to verify your internal spending controls (optional)
+	if err := checkSpendingControl(body, wallet, *transactionFee); err != nil {
+		return iris.Map{"action": "decline", "code": "spending-control"}
+	}
+
+	// Place a lien on the account, note the transaction is not yet final until closed,
+	// so you want to only reserve the money, optionally pass in the transactionFee to reserve also
+	if err := placeLien(body, wallet, *transactionFee); err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	return iris.Map{"action": "approve"}
+}
+
+// processClosed processes authorization closed event
+// This is called when an authorization is closed on allawee
+func processClosed(body *AllaweeEventBody) iris.Map {
+	// Get Original Transaction
+	originalTransaction := getTransaction(body.Data.Id)
+	if originalTransaction == nil {
+		return iris.Map{"action": "decline", "code": "invalid-transaction"}
+	}
+
+	// get card's wallet
+	wallet := getCardWallet(body.Data.Card)
+	if wallet == nil {
+		return iris.Map{"action": "decline", "code": "account-not-found"}
+	}
+
+	if body.Data.Status == "approved" {
+		return processAuthorizationApproved(body, wallet, originalTransaction)
+	}
+
+	if body.Data.Status == "declined" {
+		return processAuthorizationDeclined(body, wallet, originalTransaction)
+	}
+
+	return iris.Map{"action": "decline", "code": "invalid-transaction"}
+}
+
+// processAuthorizationUpdate processes authorization updated event
+// This is called when an authorization is updated on allawee, in case where a new amount is to be captured or it is completely reversed
+func processUpdate(body *AllaweeEventBody) iris.Map {
+	// Get Original Transaction
+	originalTransaction := getTransaction(body.Data.Id)
+	if originalTransaction == nil {
+		return iris.Map{"action": "decline", "code": "invalid-transaction"}
+	}
+
+	// get card's wallet
+	wallet := getCardWallet(body.Data.Card)
+	if wallet == nil {
+		return iris.Map{"action": "decline", "code": "account-not-found"}
+	}
+
+	if body.Data.Status == "pending" {
+		return processAuthorizationPending(body, wallet, originalTransaction)
+	}
+
+	if body.Data.Status == "reversed" {
+		return processAuthorizationReversed(body, wallet, originalTransaction)
+	}
+
+	return iris.Map{"action": "decline", "code": "invalid-transaction"}
+
+}
+
+func processAuthorizationApproved(
+	body *AllaweeEventBody,
+	wallet *Wallet,
+	originalTransaction *Transaction) iris.Map {
+
+	if originalTransaction.Status != "pending" {
+		return iris.Map{"action": "decline", "code": "duplicate-transaction"}
+	}
+
+	// Debit the lien that was previously reserved
+	if err := processDebitLien(body, wallet, originalTransaction); err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	return iris.Map{"action": "approve"}
+}
+
+func processAuthorizationPending(
+	body *AllaweeEventBody,
+	wallet *Wallet,
+	originalTransaction *Transaction) iris.Map {
+
+	if originalTransaction.Status != "pending" {
+		return iris.Map{"action": "decline", "code": "duplicate-transaction"}
+	}
+
+	// Get transaction fees
+	transactionFee, err := calculateTransactionFee(body.Data.Amount)
+	if err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	// if new amount is greater than the original amount and the wallet do not have a sufficient balance for the new amount
+	// then reverse the money reserved and return an insufficient-funds error
+	// Note: NetworkAmountAndFees here mean the original amount and fees that was sent excluding your own additional fee if applied
+	if (body.Data.AmountAndFees() > originalTransaction.NetworkAmountAndFees()) && ((wallet.AvailableBalance + originalTransaction.NetworkAmountAndFees()) < (body.Data.AmountAndFees() + *transactionFee)) {
+		if err := processReverseLien(body, wallet, originalTransaction); err != nil {
+			return iris.Map{"action": "decline"}
+		}
+
+		return iris.Map{"action": "decline", "code": "insufficient-funds"}
+	}
+
+	//  debit lien with new amount
+	if err := processDebitLien(body, wallet, originalTransaction, *transactionFee); err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	return iris.Map{"action": "approve"}
+
+}
+
+// in a case where a previous pending authorization was declined, remove the reserved funds and return to the user
+func processAuthorizationDeclined(
+	body *AllaweeEventBody,
+	wallet *Wallet,
+	originalTransaction *Transaction) iris.Map {
+
+	if originalTransaction.Status != "pending" {
+		return iris.Map{"action": "decline", "code": "duplicate-transaction"}
+	}
+
+	if err := processReverseLien(body, wallet, originalTransaction); err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	return iris.Map{"action": "approve"}
+}
+
+// in a case where a previous successful authorization was reversed by the network, refund user and return the cash to the user
+func processAuthorizationReversed(
+	body *AllaweeEventBody,
+	wallet *Wallet,
+	originalTransaction *Transaction) iris.Map {
+
+	if originalTransaction.Status != "success" {
+		return iris.Map{"action": "decline", "code": "invalid-transaction"}
+	}
+
+	// Note: NetworkAmountAndFees here mean the original amount and fees that was sent excluding your own additional fee if applied
+	if originalTransaction.NetworkAmountAndFees() != body.Data.AmountAndFees() {
+		return iris.Map{"action": "decline", "code": "invalid-transaction"}
+	}
+
+	// Notice processReverse here is different from processReverseLien, as the money is no longer in lien
+	if err := processReverse(body, wallet, originalTransaction); err != nil {
+		return iris.Map{"action": "decline"}
+	}
+
+	return iris.Map{"action": "approve"}
+}
+```
+
+```ts title="Example Authorization Implementation in TypeScript"
+import { createHmac } from "crypto";
+
+const AllaweeWebhookSigningKey = "XXXXXXXXXXX";
+
+interface AllaweeEventBody {
+  event: string;
+  data: AllaweeAuthorizationData;
+  metadata: AllaweeEventBodyMetadata;
+}
+
+interface AllaweeAuthorizationData {
+  card: string;
+  type: string;
+  id: string;
+  amount: number;
+  fees: number;
+  channel: string;
+  reserved: boolean;
+  networkData: AllaweeEventBodyDataNetworkData;
+  createdAt: Date;
+  status: string;
+  declineReason: string;
+  decisionType: string;
+  currency: string;
+}
+
+interface AllaweeEventBodyDataNetworkData {
+  rrn: string;
+  stan: string;
+  network: string;
+  txnReference: string;
+  cardAcceptorNameLocation: string;
+}
+
+interface AllaweeEventBodyMetadata {
+  createdAt: Date;
+  event: string;
+}
+
+interface Wallet {
+  active: boolean;
+  availableBalance: number;
+  name: string;
+}
+
+interface Transaction {
+  status: string;
+  networkAmountAndFees: number;
+}
+
+async function hmacHashHex(
+  key: string,
+  secret: string,
+  algorithm = "sha512",
+): Promise<string> {
+  return createHmac(algorithm, key).update(secret).digest("hex");
+}
+
+// Verify the request by comparing HMAC Hex of the webhook signing key
+async function verifyRequest(signature: string, rawBody: string) {
+  const hash = await hmacHashHex(AllaweeWebhookSigningKey, rawBody);
+
+  if (hash != signature) {
+    throw new Error("Invalid Signature");
+  }
+}
+
+function main(body: AllaweeEventBody) {
+  const signature = "xxxx";
+  const rawBody = "xxxx";
+
+  verifyRequest(signature, rawBody);
+
+  if (body.event == "card.authorization.request") {
+    return processRequest(body);
+  }
+
+  if (body.event == "card.authorization.closed") {
+    return processClosed(body);
+  }
+
+  if (body.event == "card.authorization.update") {
+    return processUpdate(body);
+  }
+
+  if (body.event == "card.transaction.created") {
+    // save transaction
+    return { code: "success" };
+  }
+
+  return { error: "Invalid Request" };
+}
+
+function processRequest(body: AllaweeEventBody) {
+  if (body.data.type == "check") {
+    return processCheck(body);
+  }
+
+  if (body.data.type == "capture") {
+    return processCapture(body);
+  }
+
+  return { action: "decline", metadata: { reason: "Invalid Request" } };
+}
+
+function processCheck(body: AllaweeEventBody) {
+  // Get the card's wallet
+  const wallet = getCardWallet(body.data.card);
+  if (!wallet) {
+    return { action: "decline", code: "account-not-found" };
+  }
+
+  if (!wallet.active) {
+    return { action: "decline", code: "account-inactive" };
+  }
+
+  return {
+    action: "approve",
+    cardBalance: wallet.availableBalance,
+    cardHolderName: wallet.name,
+  };
+}
+
+async function processCapture(body: AllaweeEventBody) {
+  // Get the card's wallet
+  const wallet = getCardWallet(body.data.card);
+
+  // if the wallet is not active, decline
+  if (!wallet) {
+    return { action: "decline", code: "account-not-found" };
+  }
+
+  // if the wallet is not active, decline
+  if (!wallet.active) {
+    return { action: "decline", code: "account-inactive" };
+  }
+
+  // Check if transaction already exists, using authorization id as reference
+  const transaction = getTransaction(body.data.id);
+  if (!transaction) {
+    return { action: "decline", code: "duplicate-transaction" };
+  }
+
+  // Get transaction fees, in-case you are adding a fee (optional)
+  const transactionFee = calculateTransactionFee(body.data.amount);
+
+  if (
+    wallet.availableBalance <
+    body.data.amount + body.data.fees + transactionFee
+  ) {
+    return { action: "decline", code: "insufficient-funds" };
+  }
+
+  // Add a step to verify your internal spending controls (optional)
+  if (!checkSpendingControl(body, wallet, transactionFee)) {
+    return { action: "decline", code: "spending-control" };
+  }
+
+  // Place a lien on the account, note the transaction is not yet final until closed,
+  // so you want to only reserve the money, optionally pass in the transactionFee to reserve also
+  try {
+    await placeLien(body, wallet, transactionFee);
+  } catch (e) {
+    return { action: "decline" };
+  }
+
+  return { action: "approve" };
+}
+
+// processClosed processes authorization closed event
+// This is called when an authorization is closed on allawee
+function processClosed(body: AllaweeEventBody) {
+  // Get Original Transaction
+  const originalTransaction = getTransaction(body.data.id);
+  if (!originalTransaction) {
+    return { action: "decline", code: "invalid-transaction" };
+  }
+
+  // get card's wallet
+  const wallet = getCardWallet(body.data.card);
+  if (!wallet) {
+    return { action: "decline", code: "account-not-found" };
+  }
+
+  if (body.data.status == "approved") {
+    return processAuthorizationApproved(body, wallet, originalTransaction);
+  }
+
+  if (body.data.status == "declined") {
+    return processAuthorizationDeclined(body, wallet, originalTransaction);
+  }
+
+  return { action: "decline", code: "invalid-transaction" };
+}
+
+// processAuthorizationUpdate processes authorization updated event
+// This is called when an authorization is updated on allawee, in case where a new amount is to be captured or it is completely reversed
+function processUpdate(body: AllaweeEventBody) {
+  // Get Original Transaction
+  const originalTransaction = getTransaction(body.data.id);
+  if (!originalTransaction) {
+    return { action: "decline", code: "invalid-transaction" };
+  }
+
+  // get card's wallet
+  const wallet = getCardWallet(body.data.card);
+  if (!wallet) {
+    return { action: "decline", code: "account-not-found" };
+  }
+
+  if (body.data.status == "pending") {
+    return processAuthorizationPending(body, wallet, originalTransaction);
+  }
+
+  if (body.data.status == "reversed") {
+    return processAuthorizationReversed(body, wallet, originalTransaction);
+  }
+
+  return { action: "decline", code: "invalid-transaction" };
+}
+
+async function processAuthorizationApproved(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+) {
+  if (originalTransaction.status != "pending") {
+    return { action: "decline", code: "duplicate-transaction" };
+  }
+
+  // Debit the lien that was previously reserved
+  try {
+    await processDebitLien(body, wallet, originalTransaction);
+  } catch (e) {
+    return { action: "decline" };
+  }
+
+  return { action: "approve" };
+}
+
+async function processAuthorizationPending(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+) {
+  if (originalTransaction.status != "pending") {
+    return { action: "decline", code: "duplicate-transaction" };
+  }
+
+  // Get transaction fees
+  const transactionFee = calculateTransactionFee(body.data.amount);
+
+  // if new amount is greater than the original amount and the wallet do not have a sufficient balance for the new amount
+  // then reverse the money reserved and return an insufficient-funds error
+  // Note: NetworkAmountAndFees here mean the original amount and fees that was sent excluding your own additional fee if applied
+  if (
+    body.data.amount + body.data.fees >
+      originalTransaction.networkAmountAndFees &&
+    wallet.availableBalance + originalTransaction.networkAmountAndFees <
+      body.data.amount + body.data.fees + transactionFee
+  ) {
+    try {
+      await processReverseLien(body, wallet, originalTransaction);
+    } catch (e) {
+      return { action: "decline" };
+    }
+
+    return { action: "decline", code: "insufficient-funds" };
+  }
+
+  //  debit lien with new amount
+  try {
+    await processDebitLien(body, wallet, originalTransaction, transactionFee);
+  } catch (e) {
+    return { action: "decline" };
+  }
+
+  return { action: "approve" };
+}
+
+// in a case where a previous pending authorization was declined, remove the reserved funds and return to the user
+async function processAuthorizationDeclined(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+) {
+  if (originalTransaction.status != "pending") {
+    return { action: "decline", code: "duplicate-transaction" };
+  }
+
+  try {
+    await processReverseLien(body, wallet, originalTransaction);
+  } catch (e) {
+    return { action: "decline" };
+  }
+
+  return { action: "approve" };
+}
+
+// in a case where a previous successful authorization was reversed by the network, refund user and return the cash to the user
+async function processAuthorizationReversed(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+) {
+  if (originalTransaction.status != "success") {
+    return { action: "decline", code: "invalid-transaction" };
+  }
+
+  // Note: NetworkAmountAndFees here mean the original amount and fees that was sent excluding your own additional fee if applied
+  if (
+    originalTransaction.networkAmountAndFees !=
+    body.data.amount + body.data.fees
+  ) {
+    return { action: "decline", code: "invalid-transaction" };
+  }
+
+  // Notice processReverse here is different from processReverseLien, as the money is no longer in lien
+
+  try {
+    await processReverse(body, wallet, originalTransaction);
+  } catch (e) {
+    return { action: "decline" };
+  }
+
+  return { action: "approve" };
+}
+
+function getCardWallet(cardId: string): Wallet {
+  return {} as Wallet;
+}
+
+function getTransaction(transactionId: string): Transaction {
+  return {} as Transaction;
+}
+
+function calculateTransactionFee(amount: number): number {
+  return 200;
+}
+
+function checkSpendingControl(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  transactionFee: number,
+): boolean {
+  return true;
+}
+
+function processDebitLien(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+  transactionFee?: number,
+) {
+  throw new Error("Function not implemented.");
+}
+function processReverseLien(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+) {
+  throw new Error("Function not implemented.");
+}
+
+function processReverse(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  originalTransaction: Transaction,
+) {
+  throw new Error("Function not implemented.");
+}
+
+function placeLien(
+  body: AllaweeEventBody,
+  wallet: Wallet,
+  transactionFee: number,
+) {
+  throw new Error("Function not implemented.");
+}
+```
+
+### Simulation
+
+You can use our simulation APIs in test mode to simulate sending an authorization events (via https://elements.getpostman.com/redirect?entityId=19364408-149559f1-606a-40dd-b230-c9d81dcf3bde&entityType=collection or using the dashboard).
+
+#### Sample Authorization Check Request Success Response
+
+```json
+{ "action": "approve", "cardBalance": 50000, "cardHolderName": "John Doe" }
+```
+
+#### Sample Authorization Decline Response
+
+```json
+{ "action": "decline", "code": "insufficient-funds" }
+```
+
+#### Sample Authorization Approve Response
+
+```json
+{
+  "action": "approve",
+  "metadata": { "acme-transaction-reference": "0C1202321234" }
+}
+```
