@@ -1,5 +1,8 @@
 ---
-sidebar_position: 1
+slug: card-authorizations
+title: Card Authorizations
+# authors: 
+tags: [cards, authorization]
 ---
 
 # How Authorization Works

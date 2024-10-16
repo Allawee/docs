@@ -87,7 +87,7 @@ const config = {
             position: 'left',
             label: 'Documentation',
           },
-          // {to: '/blog', label: 'Blog', position: 'left'},
+          {to: '/blog', label: 'Guide', position: 'left'},
           {
             href: 'https://github.com/allawee/docs',
             label: 'GitHub',
