@@ -6,12 +6,12 @@ sidebar_position: 1
 
 You can issue a card through the Allawee API with the create card endpoint. When you create a card, you can set controls on the cards. The categories determine when the card can be charged, through merchant categories, merchant MCCs, payment channels, and spending limits.
 
-## Create a physical card
+## Create a card
 
 ```js title="Sample Request"
-curl https:api.allawee.comcards
+curl https://api.allawee.com/cards
 -H "Authorization: Bearer YOUR_SECRET_KEY"
--H "Content-Type: applicationjson"
+-H "Content-Type: application/json"
 -d '{
   "program": "c.prg.2w2wBSRRjG6y1Ufuj",
   "amount": 500,
@@ -34,12 +34,6 @@ curl https:api.allawee.comcards
     ],
     "blockedCategories": [
       "airlines"
-    ],
-    "allowedChannels": [
-      "pos"
-    ],
-    "blockedChannels": [
-      "online"
     ],
     "allowedMerchants": [
       "mch.2cbc123456"
@@ -99,9 +93,9 @@ curl https:api.allawee.comcards
 You can create a naira virtual card like so:
 
 ```js title="Sample Request"
-curl https:api.allawee.comcards
+curl https://api.allawee.com.cards
 -H "Authorization: Bearer YOUR_SECRET_KEY"
--H "Content-Type: applicationjson"
+-H "Content-Type: application/json"
 -d '{
   "program": "c.prg.2w2wBSRRjG6y1Ufuj",
   "cardHolderName": "John Doe",
@@ -123,12 +117,6 @@ curl https:api.allawee.comcards
     "blockedCategories": [
       "airlines"
     ],
-    "allowedChannels": [
-      "pos"
-    ],
-    "blockedChannels": [
-      "online"
-    ],
     "allowedMerchants": [
       "mch.2cbc123456"
     ],
@@ -147,9 +135,9 @@ curl https:api.allawee.comcards
 You can create a virtual dollar card like so:
 
 ```js title="Sample Request"
-curl https:api.allawee.comcards
+curl https://api.allawee.com.cards
 -H "Authorization: Bearer YOUR_SECRET_KEY"
--H "Content-Type: applicationjson"
+-H "Content-Type: application/json"
 -d '{
   "program": "c.prg.2w2wBSRRjG6y1Ufuj",
   "cardHolderName": "John Doe",

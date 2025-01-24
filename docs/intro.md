@@ -69,9 +69,9 @@ You can use the `select` query parameter to get only some key values in your res
 
 ## Guaranteed Request Processing (GRP)
 
-Guaranteed request processing is a delayed processing system in the Allawee API.When a request cannot be processed immediately, there is a status code of 202 and a response code of `request-accepted`. You can also access the request ID in the response header you get, with a `x-request-id` key.
+Guaranteed request processing is a delayed processing system in the Allawee API. When a request cannot be processed immediately, there is a status code of 202 and a response code of `request-accepted`. You can also access the request ID in the response header you get, with a `x-request-id` key.
 
-When the request is processed, you get a webhook notification with an event type of `request-completed`. You can also check the status of your request using the ID:
+When the request is processed, you get a webhook notification with an event type of `request.completed`. You can also check the status of your request using the ID:
 
 ```js title="Sample Request"
 curl https://api.allawee.com/requests/:id
