@@ -23,7 +23,7 @@ curl https://api.allawee.com/card-programs
     "type": "bulked",
     "shippingAddress": {
       "city": "Yaba",
-      "state": "Lagos",
+      "state": "NG-LA", //this state should be in ISO-FORMAT
       "countryCode": "NG",
       "phoneNumber": "+2348123456789",
       "addressLineOne": "No 10, Adekunle Close",
@@ -31,7 +31,7 @@ curl https://api.allawee.com/card-programs
     },
     "returnAddress": {
       "city": "Yaba",
-      "state": "Lagos",
+      "state": "NG-LA",
       "countryCode": "NG",
       "phoneNumber": "+2348123456789",
       "addressLineOne": "No 10, Adekunle Close",

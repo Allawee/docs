@@ -6,10 +6,10 @@ sidebar_position: 4
 
 You can link a card you’ve created to your customer through either the card’s ID or the card PAN.
 
-To link a card to a customer through the card’s ID, you should include the ID in the url.  This request should be to Allawee's secure endpoint.
+To link a card to a customer through the card’s ID, you should include the ID in the url.  This request should be to Allawee's secure endpoint(Linking a card using the ID does not require you to use the secure url).
 
 ```js title="Sample Request"
-curl https://secure.allawee.com/cards/:id/link
+curl https://api.allawee.com/cards/:id/link
 -H "Authorization: Bearer YOUR_SECRET_KEY"
 -H "Content-Type: application/json"
 -d '{

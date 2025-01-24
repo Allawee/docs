@@ -32,7 +32,7 @@ curl https://api.allawee.com/customers
     },
     "individualAddress": {
       "city": "Yaba",
-      "state": "Lagos",
+      "state": "NG-LA",
       "countryCode": "NG",
       "addressLineOne": "No 10, Adekunle Close",
       "addressLineTwo": "Off Ciroma Rd"
