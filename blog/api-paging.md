@@ -63,7 +63,7 @@ The filter query is a space-separated list of entries. Each entry can be written
 
 ### Operators
 
-| Operator | Long form                | Shorthand(s)                   | Meaning                          |
+<!-- | Operator | Long form                | Shorthand(s)                   | Meaning                          |
 |----------|--------------------------|--------------------------------|----------------------------------|
 | eq       | `field|eq|value`         | `field:value`, `field=value`   | Equals                           |
 | ne       | `field|ne|value`         | `-field:value`, `field!=value` | Not equals                       |
@@ -78,7 +78,24 @@ The filter query is a space-separated list of entries. Each entry can be written
 | all      | `field|all|a,b,c`        | —                              | Array contains all values        |
 | size     | `field|size|N`           | —                              | Array size equals N              |
 | nsize    | `field|nsize|N`          | —                              | Array size not N                 |
-| exists   | `field|exists|true`      | —                              | Field exists (boolean)           |
+| exists   | `field|exists|true`      | —                              | Field exists (boolean)           | -->
+
+| Operator | Long Form               | Shorthand(s)                 | Meaning                          |
+|----------|-------------------------|------------------------------|----------------------------------|
+| eq       | ```field\|eq\|value```  | `field:value`, `field=value` | Equals                           |
+| ne       | ```field\|ne\|value```  | `-field:value`, `field!=value` | Not equals                      |
+| gt       | ```field\|gt\|N```      | `field>N`                    | Greater than                    |
+| gte      | ```field\|gte\|N```     | `field>=N`                   | Greater than or equal           |
+| lt       | ```field\|lt\|N```      | `field<N`                    | Less than                       |
+| lte      | ```field\|lte\|N```     | `field<=N`                   | Less than or equal              |
+| like     | ```field\|like\|text``` | `field~text`                 | Case-insensitive regex match    |
+| nlike    | ```field\|nlike\|text```| `-field~text`                | Not match (case-insensitive)    |
+| in       | ```field\|in\|a,b,c```  | —                            | In list                         |
+| nin      | ```field\|nin\|a,b,c``` | —                            | Not in list                     |
+| all      | ```field\|all\|a,b,c``` | —                            | Array contains all values       |
+| size     | ```field\|size\|N```    | —                            | Array size equals N             |
+| nsize    | ```field\|nsize\|N```   | —                            | Array size not N                |
+| exists   | ```field\|exists\|true```| —                           | Field exists (boolean)          |
 
 Numbers are parsed safely; non-numeric values remain strings.
 
